@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow — Focus on what matters</title>
+  <meta name="description" content="TaskFlow is a focused productivity workspace for planning, prioritizing, and finishing meaningful work." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Primary navigation">
+      <div class="brand-block">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div>
+          <div class="brand-name">Task<span>Flow</span></div>
+          <p class="brand-tag">Make space for focus.</p>
+        </div>
+      </div>
+      <div class="workspace-switcher">
+        <div class="avatar avatar-sm">TF</div>
+        <div><strong>Personal workspace</strong><span>Private · Local</span></div>
+        <span class="chevron">⌄</span>
+      </div>
+      <nav class="side-nav" aria-label="Workspace views">
+        <p class="nav-label">Workspace</p>
+        <button class="nav-item active" data-view="overview"><span class="nav-symbol">◈</span><span>Overview</span></button>
+        <button class="nav-item" data-view="today"><span class="nav-symbol">◷</span><span>Today</span><span class="nav-count" id="count-today">0</span></button>
+        <button class="nav-item" data-view="calendar"><span class="nav-symbol">▦</span><span>Calendar</span></button>
+        <button class="nav-item" data-view="tasks" data-filter="all"><span class="nav-symbol">☷</span><span>All tasks</span><span class="nav-count" id="count-all">0</span></button>
+        <button class="nav-item" data-view="tasks" data-filter="active"><span class="nav-symbol">○</span><span>Active</span><span class="nav-count" id="count-active">0</span></button>
+        <button class="nav-item" data-view="tasks" data-filter="completed"><span class="nav-symbol">✓</span><span>Completed</span><span class="nav-count" id="count-completed">0</span></button>
+      </nav>
+      <nav class="side-nav side-nav-secondary" aria-label="Saved filters">
+        <p class="nav-label">Smart lists</p>
+        <button class="nav-item" data-view="tasks" data-filter="favorites"><span class="nav-symbol star-symbol">★</span><span>Favorites</span><span class="nav-count" id="count-favorites">0</span></button>
+        <button class="nav-item" data-view="tasks" data-filter="high"><span class="nav-symbol priority-symbol">!</span><span>High priority</span><span class="nav-count" id="count-high">0</span></button>
+        <button class="nav-item" data-view="tasks" data-filter="overdue"><span class="nav-symbol overdue-symbol">!</span><span>Overdue</span><span class="nav-count" id="count-overdue">0</span></button>
+      </nav>
+      <div class="category-section">
+        <div class="section-heading"><p class="nav-label">Categories</p><button class="tiny-btn" id="add-category-btn" title="Add category">＋</button></div>
+        <div id="category-list" class="category-list"></div>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="nav-item" data-view="settings"><span class="nav-symbol">⚙</span><span>Settings</span></button>
+        <button class="nav-item" id="shortcuts-btn"><span class="nav-symbol">⌘</span><span>Shortcuts</span><kbd>?</kbd></button>
+        <p class="sidebar-note">Your data stays on this device.</p>
+      </div>
+    </aside>
+    <div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menu-btn" aria-label="Open navigation">☰</button>
+        <div class="breadcrumbs"><span>Personal workspace</span><b>/</b><strong id="breadcrumb-current">Overview</strong></div>
+        <div class="topbar-actions">
+          <button class="icon-btn assistant-trigger" id="assistant-btn" aria-label="Open AI assistant" title="Assistant">✦<span class="assistant-dot"></span></button>
+          <button class="icon-btn" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme">☾</button>
+          <button class="avatar" id="profile-btn" aria-label="Profile">TF</button>
+        </div>
+      </header>
+
+      <section id="overview-view" class="view active-view" data-page="overview">
+        <div class="welcome-row">
+          <div>
+            <p class="eyebrow" id="date-label">Wednesday, August 13</p>
+            <h1 id="greeting">Good afternoon<span class="wave">✦</span></h1>
+            <p class="subhead">A clear mind starts with a clear plan.</p>
+          </div>
+          <button class="btn btn-primary btn-lg" data-open-task><span>＋</span> New task <kbd>N</kbd></button>
+        </div>
+        <section class="stats-grid" aria-label="Productivity summary">
+          <article class="stat-card stat-primary"><div class="stat-top"><span class="stat-icon">◈</span><span class="stat-trend" id="stat-trend">Today</span></div><p class="stat-label">Total tasks</p><strong class="stat-value" id="stat-total">0</strong><p class="stat-foot">Across your workspace</p></article>
+          <article class="stat-card"><div class="stat-top"><span class="stat-icon icon-success">✓</span><span class="stat-trend positive" id="stat-completed-trend">0%</span></div><p class="stat-label">Completed</p><strong class="stat-value" id="stat-completed">0</strong><p class="stat-foot">Keep the momentum going</p></article>
+          <article class="stat-card"><div class="stat-top"><span class="stat-icon icon-warn">○</span><span class="stat-trend">Open</span></div><p class="stat-label">Pending</p><strong class="stat-value" id="stat-pending">0</strong><p class="stat-foot">Ready for your attention</p></article>
+          <article class="stat-card"><div class="stat-top"><span class="stat-icon icon-danger">!</span><span class="stat-trend negative" id="stat-overdue-trend">Review</span></div><p class="stat-label">Overdue</p><strong class="stat-value" id="stat-overdue">0</strong><p class="stat-foot">Bring back on track</p></article>
+          <article class="stat-card stat-rate"><div class="rate-ring" id="rate-ring"><span id="progress-percent">0%</span></div><div><p class="stat-label">Completion rate</p><strong class="stat-value small" id="stat-rate">0%</strong><p class="stat-foot">Your overall progress</p></div></article>
+          <article class="stat-card streak-card"><div class="streak-mark">✦</div><div><p class="stat-label">Current streak</p><strong class="stat-value small" id="stat-streak">0 days</strong><p class="stat-foot"><span id="stat-best-streak">Best: 0 days</span></p></div></article>
+        </section>
+        <div class="dashboard-grid">
+          <section class="panel progress-panel">
+            <div class="panel-heading"><div><p class="eyebrow">Momentum</p><h2>Productivity pulse</h2></div><span class="panel-badge" id="pulse-label">This week</span></div>
+            <div class="pulse-content"><div class="large-ring" id="large-ring"><div><strong id="pulse-percent">0%</strong><span>complete</span></div></div><div class="pulse-copy"><h3 id="pulse-title">Build your first win</h3><p id="pulse-description">Complete a task to start building a visible rhythm.</p><div class="mini-metrics"><span><b id="today-completed">0</b> done today</span><span><b id="week-completed">0</b> this week</span></div></div></div>
+            <div class="week-bars" id="week-bars" aria-label="Weekly productivity"></div>
+          </section>
+          <section class="panel focus-panel">
+            <div class="panel-heading"><div><p class="eyebrow">Focus mode</p><h2>Pomodoro</h2></div><button class="text-btn" id="pomodoro-reset">Reset</button></div>
+            <div class="pomodoro-display"><div class="pomodoro-ring" id="pomodoro-ring"><span id="pomodoro-time">25:00</span><small id="pomodoro-mode">Focus</small></div></div>
+            <div class="pomodoro-actions"><button class="btn btn-primary" id="pomodoro-start">Start focus</button><button class="icon-btn" id="pomodoro-switch" title="Switch mode" aria-label="Switch focus or break">↻</button></div>
+            <p class="focus-note">A small focused block is enough to make progress.</p>
+          </section>
+        </div>
+        <div class="dashboard-grid lower-grid">
+          <section class="panel chart-panel"><div class="panel-heading"><div><p class="eyebrow">Breakdown</p><h2>Priority mix</h2></div><span class="muted">All tasks</span></div><div id="priority-chart" class="bar-chart"></div></section>
+          <section class="panel chart-panel"><div class="panel-heading"><div><p class="eyebrow">Breakdown</p><h2>By category</h2></div><span class="muted">All tasks</span></div><div id="category-chart" class="bar-chart"></div></section>
+          <section class="panel quick-panel"><div class="panel-heading"><div><p class="eyebrow">Up next</p><h2>Today's focus</h2></div><button class="text-btn" data-view="today">View all →</button></div><div id="dashboard-today-list" class="compact-task-list"></div></section>
+        </div>
+      </section>
+
+      <section id="today-view" class="view" data-page="today">
+        <div class="page-heading"><div><p class="eyebrow">Daily focus</p><h1>Today</h1><p class="subhead" id="today-subhead">Everything that needs your attention today.</p></div><button class="btn btn-primary" data-open-task>＋ New task</button></div>
+        <div class="today-layout"><div class="today-main"><section class="task-section"><div class="section-heading"><h2>Overdue</h2><span class="section-count danger-count" id="today-overdue-count">0</span></div><div id="today-overdue-list" class="task-list"></div></section><section class="task-section"><div class="section-heading"><h2>Due today</h2><span class="section-count" id="today-due-count">0</span></div><div id="today-due-list" class="task-list"></div></section><section class="task-section"><div class="section-heading"><h2>Upcoming</h2><span class="section-count" id="today-upcoming-count">0</span></div><div id="today-upcoming-list" class="task-list"></div></section></div><aside class="today-aside panel"><p class="eyebrow">Today at a glance</p><h2 id="today-completion-heading">0 tasks completed</h2><div class="today-progress"><div id="today-progress-fill"></div></div><p class="muted" id="today-progress-copy">No tasks completed today yet.</p><div class="aside-divider"></div><p class="eyebrow">Daily intention</p><p class="intention-copy">Choose one meaningful task and give it your undivided attention.</p><button class="btn btn-secondary full-btn" id="today-focus-btn">Start a focus session</button></aside></div>
+      </section>
+
+      <section id="tasks-view" class="view" data-page="tasks">
+        <div class="page-heading"><div><p class="eyebrow" id="tasks-eyebrow">Task library</p><h1 id="tasks-heading">All tasks</h1><p class="subhead">Plan it. Prioritize it. Finish it.</p></div><button class="btn btn-primary" data-open-task>＋ New task</button></div>
+        <section class="toolbar panel"><div class="search-wrap"><span class="search-icon">⌕</span><input type="search" id="search" class="input search-input" placeholder="Search title, description, category, or tags…" aria-label="Search tasks" /><kbd class="search-shortcut">/</kbd></div><div class="toolbar-row"><div class="segmented" role="tablist" aria-label="Task status filter"><button class="seg active" data-filter="all">All</button><button class="seg" data-filter="active">Active</button><button class="seg" data-filter="completed">Completed</button></div><select id="sort" class="input select-sm" aria-label="Sort tasks"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="priority">Priority</option><option value="due">Due date</option><option value="title">Title</option></select></div><div class="filter-row"><select id="filter-category" class="input filter-select" aria-label="Filter by category"><option value="all">All categories</option></select><select id="filter-priority" class="input filter-select" aria-label="Filter by priority"><option value="all">All priorities</option><option value="urgent">Urgent</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select><button class="filter-clear" id="clear-filters">Clear filters</button></div></section>
+        <section id="task-list" class="task-list"></section>
+        <section id="empty-state" class="empty-state hidden"><div class="empty-icon" id="empty-icon">✦</div><h2 id="empty-title">Nothing here yet</h2><p class="muted" id="empty-copy">Create a task to make your plan visible.</p><button class="btn btn-secondary" data-open-task id="empty-action">Create a task</button></section>
+      </section>
+
+      <section id="calendar-view" class="view" data-page="calendar">
+        <div class="page-heading"><div><p class="eyebrow">Plan visually</p><h1>Calendar</h1><p class="subhead">A simple view of everything on your plate.</p></div><button class="btn btn-primary" data-open-task>＋ New task</button></div>
+        <section class="calendar-layout"><div class="calendar-card panel"><div class="calendar-toolbar"><button class="icon-btn" id="calendar-prev" aria-label="Previous month">‹</button><h2 id="calendar-month">August 2026</h2><button class="icon-btn" id="calendar-next" aria-label="Next month">›</button><button class="text-btn today-btn" id="calendar-today">Today</button></div><div class="calendar-weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div><div id="calendar-grid" class="calendar-grid"></div></div><aside class="selected-day panel"><div class="selected-day-heading"><div><p class="eyebrow">Selected date</p><h2 id="selected-date-label">Today</h2></div><button class="icon-btn" id="calendar-add" aria-label="Add task for selected date">＋</button></div><div id="selected-day-list" class="compact-task-list"></div></aside></section>
+      </section>
+
+      <section id="settings-view" class="view" data-page="settings">
+        <div class="page-heading"><div><p class="eyebrow">Workspace preferences</p><h1>Settings</h1><p class="subhead">Shape TaskFlow around the way you work.</p></div></div>
+        <div class="settings-grid"><section class="settings-card panel"><div class="settings-title"><span class="settings-icon">◐</span><div><h2>Appearance</h2><p class="muted">Make the workspace feel like yours.</p></div></div><label class="setting-row"><span><strong>Theme</strong><small>Choose how TaskFlow looks</small></span><select id="setting-theme" class="input setting-control"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label></section><section class="settings-card panel"><div class="settings-title"><span class="settings-icon">✦</span><div><h2>Productivity</h2><p class="muted">Set thoughtful defaults for new tasks.</p></div></div><label class="setting-row"><span><strong>Default priority</strong><small>Applied when you create a task</small></span><select id="setting-priority" class="input setting-control"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select></label><label class="setting-row"><span><strong>Default category</strong><small>Applied when you create a task</small></span><select id="setting-category" class="input setting-control"></select></label><label class="setting-row"><span><strong>Pomodoro duration</strong><small>Focus minutes before a break</small></span><select id="setting-pomodoro" class="input setting-control"><option value="15">15 minutes</option><option value="25">25 minutes</option><option value="45">45 minutes</option><option value="50">50 minutes</option></select></label></section><section class="settings-card panel"><div class="settings-title"><span class="settings-icon">⇅</span><div><h2>Data & privacy</h2><p class="muted">Your tasks are stored locally in this browser.</p></div></div><div class="data-actions"><button class="data-action" id="export-json"><span>⇩</span><div><strong>Export JSON</strong><small>Full backup with all fields</small></div></button><button class="data-action" id="export-csv"><span>⇩</span><div><strong>Export CSV</strong><small>Open in a spreadsheet</small></div></button><button class="data-action" id="import-json"><span>⇧</span><div><strong>Import JSON</strong><small>Add tasks from a backup</small></div></button><input type="file" id="import-file" accept="application/json,.json" hidden /></div><div class="danger-zone"><div><strong>Clear all tasks</strong><small>This cannot be undone.</small></div><button class="btn btn-danger btn-outline" id="clear-data">Clear data</button></div></section><section class="settings-card panel ai-card"><div class="settings-title"><span class="settings-icon">✧</span><div><h2>AI assistant</h2><p class="muted">A safe place to connect an assistant later.</p></div><span class="coming-soon">Demo mode</span></div><p class="ai-note">TaskFlow keeps the assistant behind a backend-ready boundary. This local demo never sends your tasks anywhere and never stores API keys in the browser.</p><button class="btn btn-secondary" id="settings-assistant">Open assistant</button></section><section class="settings-card panel shortcuts-card"><div class="settings-title"><span class="settings-icon">⌘</span><div><h2>Keyboard shortcuts</h2><p class="muted">Move quickly without leaving the keyboard.</p></div></div><div class="shortcut-list"><span><kbd>N</kbd> New task</span><span><kbd>/</kbd> Search</span><span><kbd>?</kbd> Shortcuts</span><span><kbd>Esc</kbd> Close dialog</span></div></section></div>
+      </section>
+
+      <footer class="app-footer"><span>TaskFlow <b>·</b> Focus on what matters.</span><span>Local-first productivity <b>·</b> v2.0</span></footer>
+    </main>
+  </div>
+
+  <div class="modal-backdrop hidden" id="task-modal" role="dialog" aria-modal="true" aria-labelledby="task-modal-title"><div class="modal task-modal"><div class="modal-header"><div><p class="eyebrow" id="task-modal-eyebrow">Create a task</p><h2 id="task-modal-title">What needs your attention?</h2></div><button class="icon-btn modal-close" data-close-modal aria-label="Close dialog">×</button></div><form id="task-form" class="task-form" novalidate><label class="field-label">Title <span>Required</span><input type="text" id="task-input" class="input input-lg" placeholder="e.g. Finish product brief" maxlength="120" required /></label><label class="field-label">Description <span>Optional</span><textarea id="task-description" class="input" rows="3" maxlength="500" placeholder="Add a little context…"></textarea></label><div class="form-grid"><label class="field-label">Priority<select id="task-priority" class="input"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select></label><label class="field-label">Category<select id="task-category" class="input"></select></label><label class="field-label">Due date<input type="date" id="task-due" class="input" /></label><label class="field-label">Repeat<select id="task-recurrence" class="input"><option value="none">Does not repeat</option><option value="daily">Every day</option><option value="weekly">Every week</option><option value="monthly">Every month</option></select></label></div><label class="field-label">Tags <span>Optional · comma separated</span><input type="text" id="task-tags" class="input" placeholder="design, launch, focus" maxlength="160" /></label><label class="favorite-toggle"><input type="checkbox" id="task-favorite" /><span class="fake-checkbox">★</span><span>Save as a favorite</span></label><p class="error-text" id="form-error" role="alert"></p><div class="modal-actions"><button type="button" class="btn btn-ghost" data-close-modal>Cancel</button><button type="submit" class="btn btn-primary" id="task-submit">Create task</button></div></form></div></div>
+
+  <div class="modal-backdrop hidden" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title"><div class="modal confirm-modal"><div class="confirm-icon">!</div><h2 id="confirm-title">Delete this task?</h2><p class="muted">You can undo this from the notification for a few seconds.</p><div class="modal-actions"><button class="btn btn-ghost" id="confirm-cancel">Cancel</button><button class="btn btn-danger" id="confirm-ok">Delete task</button></div></div></div>
+
+  <div class="modal-backdrop hidden" id="shortcuts-modal" role="dialog" aria-modal="true" aria-labelledby="shortcuts-title"><div class="modal shortcuts-modal"><div class="modal-header"><div><p class="eyebrow">Work faster</p><h2 id="shortcuts-title">Keyboard shortcuts</h2></div><button class="icon-btn modal-close" data-close-modal aria-label="Close dialog">×</button></div><div class="shortcut-list large"><span><kbd>N</kbd><b>New task</b><small>Open the task composer</small></span><span><kbd>/</kbd><b>Search</b><small>Jump to task search</small></span><span><kbd>?</kbd><b>Show shortcuts</b><small>Open this reference</small></span><span><kbd>Esc</kbd><b>Close dialog</b><small>Dismiss any open window</small></span></div></div></div>
+
+  <div class="modal-backdrop hidden" id="assistant-modal" role="dialog" aria-modal="true" aria-labelledby="assistant-title"><div class="modal assistant-modal"><div class="modal-header"><div><p class="eyebrow">Private · local demo</p><h2 id="assistant-title">TaskFlow assistant <span class="sparkle">✦</span></h2></div><button class="icon-btn modal-close" data-close-modal aria-label="Close dialog">×</button></div><p class="assistant-intro">Describe what is on your mind. The demo will turn clear phrases into task suggestions locally. No data leaves this device.</p><form id="assistant-form"><textarea id="assistant-input" class="input" rows="4" placeholder="I have a Java assignment, gym at 6 PM and SQL study tonight…"></textarea><div class="assistant-actions"><span class="muted">Backend-ready interface · no API key</span><button class="btn btn-primary" type="submit">Suggest tasks</button></div></form><div id="assistant-results" class="assistant-results hidden"></div></div></div>
+
+  <script src="./script.js"></script>
+</body>
+</html>
